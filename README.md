@@ -34,9 +34,11 @@ The NDC codes used to concurrent prescriptions can be found in [`NDC_codes`](inp
 
 ### Diagnosis codes
 
-The diagnosis codes used for the outcomes of OUD opioid abuse diagnosis and non-fatal unintentional opioid overdose are located in [`scripts/ICD_codes/OUD.R`](scripts/ICD_codes/OUD.R).
+The diagnosis codes used for the outcomes of OUD opioid abuse diagnosis and non-fatal unintentional opioid overdose are located in [`scripts/ICD_codes/OUD.R`](scripts/ICD_codes/OUD.R). These are called in `define_oud_*.R` where * is in {mcneely, hillary, abuse, poison}.
 
 ### MOUD
+
+NDC codes for buprenorphine and naltrexone are in `input/MOUD_codes/best_moud_ndc_list_20230720.csv`. Buprenorphine required additional logic for the type of administration (e.g. tablet, injection) and this data are contained in `input/MOUD_codes/best_bup_moud_ndc_list.rds`. The HCPCS codes for buprenorphine, natrexone, and methadone are in `input/MOUD_codes/best_moud_hcpcs_list_20230720.csv`. These codes are extracted and MOUD start/stop dates are defined in `scripts/06_define_OUD_components/define_moud_*.R` where * is in {bup, nal, met}.
 
 ### Probable misuse
 
