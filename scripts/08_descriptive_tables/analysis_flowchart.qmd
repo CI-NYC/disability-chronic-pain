@@ -1,0 +1,428 @@
+---
+title: "Numbers for cohort eligibility flowcharts"
+format: html
+editor: visual
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+    warning = F, message = F, echo=F,
+  comment = '', fig.width = 6, fig.height = 6
+)
+library(tidyverse)
+```
+
+# Analysis cohort
+
+```{r}
+analysis_cohort_exclusions <-read_rds(here::here("projects/create_cohort/output/analysis_cohort_exclusions.rds"))
+
+cohort<- analysis_cohort_exclusions # cohort= cohort
+
+cohort_n <- sum(cohort$n)
+cat(paste("Unique beneficiaries N =", cohort_n))
+```
+
+### Enrollment date Jan 1 2016
+
+```{r}
+exclusion <- "cohort_exclusion_cal_jan2016"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### No washout period (enrolled too late in 2019)
+
+```{r}
+exclusion <- "cohort_exclusion_cal_no_washout"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### No eligibility criteria
+
+```{r}
+exclusion <- "cohort_exclusion_cal_no_elig"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Unknown disability status
+
+```{r}
+exclusion <- "cohort_exclusion_cal_unknown_disability"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### State
+
+```{r}
+exclusion <- "cohort_exclusion_state"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Age
+
+```{r}
+exclusion <- "cohort_exclusion_age"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Sex
+
+```{r}
+exclusion <- "cohort_exclusion_sex"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Pregnancy
+
+```{r}
+exclusion <- "cohort_exclusion_cal_pregnancy"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Dual enrollment
+
+```{r}
+# cohort <- cohort|> mutate(cohort_exclusion_dual = 
+#                      cohort_exclusion_cal_dual + cohort_exclusion_cal_dual_elig,
+#                      cohort_exclusion_dual = ifelse(cohort_exclusion_dual >= 1, 1, 0))
+
+exclusion <- "cohort_exclusion_cal_dual"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Deaf or blind
+
+```{r}
+cohort <- cohort|> mutate(cohort_exclusion_db = 
+                     cohort_exclusion_deaf + cohort_exclusion_blind + cohort_exclusion_cal_deafblind,
+                     cohort_exclusion_db = ifelse(cohort_exclusion_db >= 1, 1, 0))
+
+exclusion <- "cohort_exclusion_db"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Dementia
+
+```{r}
+exclusion <- "cohort_exclusion_cal_dementia"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Intellectual disabilities
+
+```{r}
+exclusion <- "cohort_exclusion_cal_itlcdsbl"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Schizophrenia
+
+```{r}
+exclusion <- "cohort_exclusion_cal_schiz"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Speech problems
+
+```{r}
+exclusion <- "cohort_exclusion_cal_speech"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Cerebral Palsy
+
+```{r}
+exclusion <- "cohort_exclusion_cal_cerpals"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Epilepsy
+
+```{r}
+exclusion <- "cohort_exclusion_cal_epilepsy"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Tuberculosis
+
+```{r}
+exclusion <- "cohort_exclusion_cal_tb"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Cancer
+
+```{r}
+exclusion <- "cohort_exclusion_cal_cancer"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### LTC
+
+```{r}
+exclusion <- "cohort_exclusion_cal_ltc"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Palliative care
+
+```{r}
+exclusion <- "cohort_exclusion_cal_pall"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+### Institutionalized
+
+```{r}
+exclusion <- "cohort_exclusion_cal_institution"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
+
+## OUD
+
+```{r}
+exclusion <- "cohort_exclusion_oud_cal"
+
+n_exclude <- cohort|>
+    filter(.data[[exclusion]] == 1) |>
+    pull(n) |>
+    sum()
+cat(paste("Excluded n =", n_exclude))
+
+cohort<- cohort|>
+    filter(.data[[exclusion]] == 0)
+
+cohort_n <- sum(cohort$n)
+cat(paste("New cohort N =", cohort_n))
+```
