@@ -14,7 +14,7 @@ Code repository for analyzing associations between disability / chronic pain and
 
 	- The specific ICD-10 codes used for exclusion criteria can be found in [`ICD_codes/disabilities.R`](scripts/ICD_codes/disabilities.R), with the exception of palliative care, which is directly listed in the cleaning files (ICD10 code "Z515").
 
-- [`03_initial_cohort_exclusions/add_LTC_variables.R`](03_initial_cohort_exclusions/add_LTC_variables.R) creates a long term care exclusion indicator by categorizing the `PTNT_DSCHRG_STUS_CD` in the Inpatient Hospital file.
+- [`03_initial_cohort_exclusions/add_LTC_variables.R`](scripts/03_initial_cohort_exclusions/add_LTC_variables.R) creates a long term care exclusion indicator by categorizing the `PTNT_DSCHRG_STUS_CD` in the Inpatient Hospital file.
 
 # Variable definitions
 
@@ -24,11 +24,11 @@ Demographics are extracted from the Demographics - Base TAF file in the script [
 
 ## Psychiatric Comorbidities
 
-The ICD-10 codes used to define ADHD, Anxiety, Bipolar, Depression, and Other Mental Illness psychiatric comorbidities can be found in [`input/ICD_codes`](input/ICD_codes) in individual csv files. The R script to search these ICD-10 codes in Other Services and Inpatient Hospital files is in [`04_define_comorbidity_vars.R`](scripts/04_define_comorbidity_vars.R).
+The ICD-10 codes used to define ADHD, Anxiety, Bipolar, Depression, and Other Mental Illness psychiatric comorbidities can be found in [`input/ICD_codes`](input/ICD_codes) in individual csv files. The R script to search these ICD-10 codes in Other Services and Inpatient Hospital files is in [`04_define_comorbidity_vars/define_*.R`](scripts/04_define_comorbidity_vars).
 
 ## Concurrent Prescriptions
 
-The NDC codes used to concurrent prescriptions can be found in [`NDC_codes`](input/NDC_codes) in individual csv files. The R script to search these NDCs in Inpatient Hospital and Pharmacy files is in [`05_define_prescription_vars.R`](scripts/05_define_prescription_vars.R).
+The NDC codes used to concurrent prescriptions can be found in [`NDC_codes`](input/NDC_codes) in individual csv files. The R script to search these NDCs in Inpatient Hospital and Pharmacy files is in [`05_define_prescription_vars/define_*.R`](scripts/05_define_prescription_vars/).
 
 ## OUD
 
