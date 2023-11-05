@@ -19,7 +19,7 @@ set.seed(7) # for random sampling
 
 # Read in analytical file ------------------------------------------------------
 
-analysis_cohort <- read_rds("data/final/analysis_cohort.rds")
+analysis_cohort <- read_rds("projects/create_cohort/data/final/analysis_cohort.rds")
 
 # define outcomes ---------------------------------------------------------
 
@@ -172,7 +172,7 @@ dat_lmtp <-
 dat_lmtp |>
     count(disability_pain_cal)
 
-saveRDS(dat_lmtp, "data/final/dat_lmtp.rds")
+saveRDS(dat_lmtp, "projects/create_cohort/data/final/dat_lmtp.rds")
 
 
 # make a descriptive table ------------------------------------------------
@@ -193,7 +193,7 @@ lmtp_tbl_df <-
     as.data.frame() |>
     select(label:stat_4)
 
-write.csv(lmtp_tbl_df, "tbls/analysis_tbl.csv")
+write.csv(lmtp_tbl_df, "projects/create_cohort/tbls/analysis_tbl.csv")
 
 
 

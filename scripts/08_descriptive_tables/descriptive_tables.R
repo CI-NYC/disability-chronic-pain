@@ -14,10 +14,10 @@ library(gtsummary)
 library(gt)
 library(tictoc)
 
-desc_cohort <-  read_rds("data/final/desc_cohort.rds") 
-analysis_cohort <-  read_rds("data/final/analysis_cohort.rds") 
+#desc_cohort <-  read_rds("data/final/desc_cohort.rds") 
+analysis_cohort <-  read_rds("projects/create_cohort/data/final/analysis_cohort.rds") 
 
-dat_lmtp <- read_rds("data/final/dat_lmtp.rds") 
+dat_lmtp <- read_rds("projects/create_cohort/data/final/dat_lmtp.rds") 
 
 dat_subset <- dat_lmtp |>
     select(BENE_ID) |>
@@ -406,7 +406,7 @@ dem_tbl3_data <- dat_subset  |>
         dem_ssi_benefits = "SSI Benefits"
     )
 
-
+# ultimately going to report the *_rxnorm prescriptions in paper
 comorb_tbl3_data <- dat_subset  |>
     select(disability_pain_cal, 
            #chronic_pain_ever_cal,
@@ -417,10 +417,13 @@ comorb_tbl3_data <- dat_subset  |>
            mental_ill_washout_cal,
            antidepressant_washout_cal,
            benzodiazepine_washout_cal,
+           benzodiazepine_rxnorm_washout_cal,
            antipsychotic_washout_cal, 
            stimulant_washout_cal,
+           stimulants_rxnorm_washout_cal,
            moodstabilizer_washout_cal,
-           opioid_pain_washout_cal# ,
+           opioid_pain_washout_cal,
+           opioids_pain_rxnorm_washout_cal)# ,
            # bipolar_study_cal,
            # anxiety_study_cal,
            # adhd_study_cal,
@@ -432,22 +435,22 @@ comorb_tbl3_data <- dat_subset  |>
            # stimulant_study_cal,
            # moodstabilizer_study_cal,
            # opioid_pain_study_cal
-          
-    ) |>
-    labelled::set_variable_labels(
-      chronic_pain_ever_cal  = "Chronic Pain Ever",
-        bipolar_study_cal = "Bipolar",
-        anxiety_study_cal = "Anxiety",
-        adhd_study_cal = "ADD/ADHD",
-        depression_study_cal = "Depression",
-        mental_ill_study_cal = "Other Mental Illness",
-        antidepressant_study_cal = "Antidepressant Prescription",
-        benzodiazepine_study_cal = "Benzodiazepine Prescription",
-        antipsychotic_study_cal = "Anti-psychotic Prescription", 
-        stimulant_study_cal = "Stimulant Prescription",
-        moodstabilizer_study_cal = "Mood Stabilizer Prescription",
-        opioid_pain_study_cal = "Opioid Pain Prescription",
-    )
+    #       
+    # ) |>
+    # labelled::set_variable_labels(
+    #   chronic_pain_ever_cal  = "Chronic Pain Ever",
+    #     bipolar_study_cal = "Bipolar",
+    #     anxiety_study_cal = "Anxiety",
+    #     adhd_study_cal = "ADD/ADHD",
+    #     depression_study_cal = "Depression",
+    #     mental_ill_study_cal = "Other Mental Illness",
+    #     antidepressant_study_cal = "Antidepressant Prescription",
+    #     benzodiazepine_study_cal = "Benzodiazepine Prescription",
+    #     antipsychotic_study_cal = "Anti-psychotic Prescription", 
+    #     stimulant_study_cal = "Stimulant Prescription",
+    #     moodstabilizer_study_cal = "Mood Stabilizer Prescription",
+    #     opioid_pain_study_cal = "Opioid Pain Prescription",
+    # )
 
 
 oud_tbl3_data <- dat_subset  |>
@@ -496,7 +499,7 @@ latex_tbl <- dem_tbl3 |>
     as_gt() |>
     as_latex()
 
-write_rds(latex_tbl, "output/dem_tbl3_gt.rds")
+write_rds(latex_tbl, "projects/create_cohort/output/dem_tbl3_gt.rds")
 
 
 
@@ -508,7 +511,7 @@ dem_tbl3_df_select <-
     dem_tbl3_df |>
     select(label:stat_4)
 
-write_csv(dem_tbl3_df, "tbls/dem_tbl3.csv")
+write_csv(dem_tbl3_df, "projects/create_cohort/tbls/dem_tbl3.csv")
 
 
 ##########  COMORBIDITIES ################################################## 
@@ -524,7 +527,7 @@ latex_tbl <- comorb_tbl3 |>
     as_gt() |>
     as_latex()
 
-write_rds(latex_tbl, "output/comorb_tbl3_gt.rds")
+write_rds(latex_tbl, "projects/create_cohort/output/comorb_tbl3_gt.rds")
 
 
 
@@ -536,7 +539,7 @@ comorb_tbl3_df_select <-
     comorb_tbl3_df |>
     select(label:stat_4)
 
-write_csv(comorb_tbl3_df, "tbls/comorb_tbl3.csv")
+write_csv(comorb_tbl3_df, "projects/create_cohort/tbls/comorb_tbl3.csv")
 
 
 ##########  OUD  ##########################################################  
@@ -554,7 +557,7 @@ latex_tbl <- oud_tbl3 |>
     as_latex()
 
 # export to latex code
-write_rds(latex_tbl, "output/oud_tbl3_gt.rds")
+write_rds(latex_tbl, "projects/create_cohort/output/oud_tbl3_gt.rds")
 
 
 
@@ -567,7 +570,7 @@ oud_tbl3_df_select <-
     oud_tbl3_df |>
     select(label:stat_4)
 
-write_csv(oud_tbl3_df, "tbls/oud_tbl3.csv")
+write_csv(oud_tbl3_df, "projects/create_cohort/tbls/oud_tbl3.csv")
 
 
 ### extra numbers for paper
@@ -590,5 +593,3 @@ dat_subset |>
     as.data.frame() 
 
 
-
-# Create data for table 1 (SUBSET ANALYSIS COHORT, age restiriction) pieces -----------------------------------------------

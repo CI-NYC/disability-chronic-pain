@@ -27,11 +27,13 @@ getDoParWorkers()
 
 source("scripts/ICD_codes/disabilities.R")
 
+drv <- "../data/clean/create_cohort/"
+
 td <- "/home/data/12201/" # directory of interest
 oth_files <- paste0(list.files(td, pattern = "*TAFOTH*", recursive = TRUE)) # files of interest
 oth <- open_dataset(paste0(td, oth_files), format="parquet") # arrow dataset
 
-dts_cohorts <- open_dataset("data/tafdedts/dts_cohorts.parquet") |>
+dts_cohorts <- open_dataset("tafdedts/dts_cohorts.parquet") |>
     collect() |> 
     mutate(index = rep(1:25, length.out=n()))
 
@@ -47,7 +49,7 @@ dts_cohorts <- open_dataset("data/tafdedts/dts_cohorts.parquet") |>
 # 40 million rows after removing NAs and then filter out washout period relevant codes
 
 all <- 1:25
-td <- "data/tafoth/tmp_splits_exclusions/" 
+td <- paste0(drv, "tafoth/tmp_splits_exclusions/")
 files <- paste0(list.files(td, pattern = "*.parquet", recursive = TRUE)) 
 done <- unique(parse_number(files))
 still <- all[-which(all %in% done)]
@@ -85,7 +87,7 @@ foreach(i = still) %dopar%
                cohort_exclusion_cal_pall = dgcd %in% "Z515", # palliative care encounter
                cohort_exclusion_cal_cancer =  dgcd %in% cancer_icds
         )
-    write_parquet(oth_dgcd1_cal_clean, paste0("data/tafoth/tmp_splits_exclusions/", i, "_dgcd1_cal.parquet"))
+    write_parquet(oth_dgcd1_cal_clean, paste0(drv, "tafoth/tmp_splits_exclusions/", i, "_dgcd1_cal.parquet"))
     print(paste(i, Sys.time())) # now clean second Diagnosis code
     oth_dgcd2_cal <-
         icd_codes_to_check |> 
@@ -110,7 +112,7 @@ foreach(i = still) %dopar%
                cohort_exclusion_cal_pall = dgcd %in% "Z515", # palliative care encounter
                cohort_exclusion_cal_cancer =  dgcd %in% cancer_icds
         )
-    write_parquet(oth_dgcd2_cal_clean, paste0("data/tafoth/tmp_splits_exclusions/", i, "_dgcd2_cal.parquet"))
+    write_parquet(oth_dgcd2_cal_clean, paste0(drv, "tafoth/tmp_splits_exclusions/", i, "_dgcd2_cal.parquet"))
     }
 
 
@@ -155,7 +157,7 @@ foreach(i = still) %dopar%
                    cohort_exclusion_cal_pall = dgcd %in% "Z515", # palliative care encounter
                    cohort_exclusion_cal_cancer =  dgcd %in% cancer_icds
             )
-        write_parquet(oth_dgcd1_cal_clean, paste0("data/tafoth/tmp_splits_exclusions/", i, "_dgcd1_12mos_cal.parquet"))
+        write_parquet(oth_dgcd1_cal_clean, paste0(drv, "tafoth/tmp_splits_exclusions/", i, "_dgcd1_12mos_cal.parquet"))
         print(paste(i, Sys.time())) # now clean second Diagnosis code
         oth_dgcd2_cal <-
             icd_codes_to_check |> 
@@ -180,7 +182,7 @@ foreach(i = still) %dopar%
                    cohort_exclusion_cal_pall = dgcd %in% "Z515", # palliative care encounter
                    cohort_exclusion_cal_cancer =  dgcd %in% cancer_icds
             )
-        write_parquet(oth_dgcd2_cal_clean, paste0("data/tafoth/tmp_splits_exclusions/", i, "_dgcd2_12mos_cal.parquet"))
+        write_parquet(oth_dgcd2_cal_clean, paste0(drv, "tafoth/tmp_splits_exclusions/", i, "_dgcd2_12mos_cal.parquet"))
     }
 
 
@@ -217,7 +219,7 @@ foreach(i = still) %dopar% {
                cohort_exclusion_cont_pall = dgcd %in% "Z515", # palliative care encounter
                cohort_exclusion_cont_cancer =  dgcd %in% cancer_icds
         )
-    write_parquet(oth_dgcd1_cont_clean, paste0("data/tafoth/tmp_splits_exclusions/", i, "_dgcd1_cont.parquet"))
+    write_parquet(oth_dgcd1_cont_clean, paste0(drv, "tafoth/tmp_splits_exclusions/", i, "_dgcd1_cont.parquet")))
     print(paste(i, Sys.time()))
     oth_dgcd2_cont <-
         icd_codes_to_check |> 
@@ -242,11 +244,11 @@ foreach(i = still) %dopar% {
                cohort_exclusion_cont_pall = dgcd %in% "Z515", # palliative care encounter
                cohort_exclusion_cont_cancer =  dgcd %in% cancer_icds
         )
-    write_parquet(oth_dgcd2_cont_clean, paste0("data/tafoth/tmp_splits_exclusions/", i, "_dgcd2_cont.parquet"))
+    write_parquet(oth_dgcd2_cont_clean, paste0(drv, "tafoth/tmp_splits_exclusions/", i, "_dgcd2_cont.parquet"))
 }
 
 # Gather all the splits and create a single data frame to save
-td <- "data/tafoth/tmp_splits_exclusions/" 
+td <- paste0(drv, "tafoth/tmp_splits_exclusions/" )
 files <- paste0(list.files(td, pattern = "*cont.parquet", recursive = TRUE)) 
 dts_dgcd_cont <- open_dataset(paste0(td, files), format="parquet") # arrow dataset
 
@@ -256,7 +258,7 @@ dts_dgcd_cont_clean <-
     group_by(BENE_ID) |>
     summarize(across(starts_with("cohort"), ~ifelse(sum(.x) >= 1, 1, 0))) |>
     rename()
-write_rds(dts_dgcd_cont_clean, "data/tafoth/oth_cohort_exclusions_cont.rds")
+write_rds(dts_dgcd_cont_clean, paste0(drv, "tafoth/oth_cohort_exclusions_cont.rds"))
 
 files <- paste0(list.files(td, pattern = "*cal.parquet", recursive = TRUE))  ### REMOVE RTHE ONES THAT HAVE 12 months in them
 dts_dgcd_cal <- open_dataset(paste0(td, files), format="parquet") # arrow dataset
@@ -265,11 +267,10 @@ dts_dgcd_cal_clean <-
     dts_dgcd_cal_collect |>
     group_by(BENE_ID) |>
     summarize(across(starts_with("cohort"), ~ifelse(sum(.x) >= 1, 1, 0))) 
-write_rds(dts_dgcd_cal_clean, "data/tafoth/oth_cohort_exclusions_cal.rds")
+write_rds(dts_dgcd_cal_clean, paste0(drv, "tafoth/oth_cohort_exclusions_cal.rds"))
 
 
-### REDONE LATER
-td <- "data/tafoth/tmp_splits_exclusions/" 
+td <- paste0(drv, "tafoth/tmp_splits_exclusions/") 
 files <- paste0(list.files(td, pattern = "*12mos_cal.parquet", recursive = TRUE))  ### REMOVE RTHE ONES THAT HAVE 12 months in them
 dts_dgcd_cal <- open_dataset(paste0(td, files), format="parquet") # arrow dataset
 dts_dgcd_cal_collect <- dts_dgcd_cal |> 
@@ -281,6 +282,6 @@ dts_dgcd_cal_clean <-
     dts_dgcd_cal_collect |>
     group_by(BENE_ID) |>
     summarize(across(starts_with("cohort"), ~ifelse(sum(.x) >= 1, 1, 0))) 
-write_rds(dts_dgcd_cal_clean, "data/tafoth/oth_cohort_exclusions_12mos_cal.rds")
+write_rds(dts_dgcd_cal_clean, paste0(drv, "tafoth/oth_cohort_exclusions_12mos_cal.rds"))
 
 

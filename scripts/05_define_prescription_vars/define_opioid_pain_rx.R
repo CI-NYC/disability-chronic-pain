@@ -30,7 +30,9 @@ dts_cohorts <-
     open_dataset("data/tafdedts/dts_cohorts.parquet") |>
     collect()
 
-opioid_pain_codes <- read_csv("input/NDC_codes/opioid_pain_rxs_clean.csv")
+# opioid_pain_codes <- read_csv("input/NDC_codes/opioid_pain_rxs_clean.csv")
+opioid_pain_codes <- read_rds("projects/create_cohort/input/NDC_codes/opioids_with_strength.rds") |>
+    filter(flag_opioid_treat_dependence == F)
 
 # Get minimum fill dates from RXL -----------------------------------------
 

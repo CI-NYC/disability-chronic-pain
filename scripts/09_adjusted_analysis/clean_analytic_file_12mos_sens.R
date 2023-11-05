@@ -20,7 +20,7 @@ set.seed(7) # for random sampling
 
 # Read in analytical file ------------------------------------------------------
 
-analysis_cohort <- read_rds("data/final/sens_12mos_analysis_cohort.rds")
+analysis_cohort <- read_rds("projects/create_cohort/data/final/sens_12mos_analysis_cohort.rds")
 
 # define outcomes ---------------------------------------------------------
 

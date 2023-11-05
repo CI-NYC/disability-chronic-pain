@@ -18,49 +18,63 @@ library(gtsummary)
 library(gt)
 library(tictoc)
 
-# mental illness data frames
-anxiety <- read_rds("data/final/anxiety.rds")
-depression <- read_rds("data/final/depression.rds")
-adhd <- read_rds("data/final/adhd.rds")
-mental_ill <- read_rds("data/final/mental_ill.rds")
-bipolar <- read_rds("data/final/bipolar.rds")
+#### mental illness data frames
+# anxiety <- read_rds("projects/create_cohort/data/final/anxiety.rds")
+# depression <- read_rds("projects/create_cohort/data/final/depression.rds")
+# adhd <- read_rds("projects/create_cohort/data/final/adhd.rds")
+# mental_ill <- read_rds("projects/create_cohort/data/final/mental_ill.rds")
+# bipolar <- read_rds("projects/create_cohort/data/final/bipolar.rds")
 
-# prescription data frames
-antidepressants <- read_rds("data/final/antidepressants.rds")
-benzodiazepines <- read_rds("data/final/benzodiazepines.rds")
-antipsychotics <- read_rds("data/final/antipsychotics.rds")
-stimulants <- read_rds("data/final/stimulants.rds")
-opioid_pain_rxs <- read_rds("data/final/opioid_pains.rds")
-moodstabilizers <- read_rds("data/final/moodstabilizers.rds")
+#### prescription data frames
+# antidepressants <- read_rds("projects/create_cohort/data/final/antidepressants.rds")
+# benzodiazepines <- read_rds("projects/create_cohort/data/final/benzodiazepines.rds")
+# antipsychotics <- read_rds("projects/create_cohort/data/final/antipsychotics.rds")
+# stimulants <- read_rds("projects/create_cohort/data/final/stimulants.rds")
+# opioid_pain_rxs <- read_rds("projects/create_cohort/data/final/opioid_pains.rds")
+# moodstabilizers <- read_rds("projects/create_cohort/data/final/moodstabilizers.rds")
 
-# merge all mental illnesses
-mental_illnesses <- reduce(list(anxiety, depression, adhd, mental_ill, bipolar),
-                           ~full_join(.x, .y))
+# RXNORM method prescription data frames
+opioid_pain_rxnorm <- read_rds("projects/create_cohort/data/final/opioids_pain_rxnorm.rds")
+stimulants_rxnorm <- read_rds("projects/create_cohort/data/final/stimulants_rxnorm.rds")
+benzodiazepines_rxnorm <- read_rds("projects/create_cohort/data/final/benzodiazepines_rxnorm.rds")
 
-# merge all prescriptions
-prescriptions <- reduce(list(antidepressants, 
-                             benzodiazepines, 
-                             antipsychotics,
-                             stimulants,
-                             opioid_pain_rxs, 
-                             moodstabilizers),
+#### merge all mental illnesses
+# mental_illnesses <- reduce(list(anxiety, depression, adhd, mental_ill, bipolar),
+#                            ~full_join(.x, .y))
+
+#### merge all prescriptions
+# prescriptions <- reduce(list(antidepressants, 
+#                              benzodiazepines, 
+#                              antipsychotics,
+#                              stimulants,
+#                              opioid_pain_rxs, 
+#                              moodstabilizers),
+#                         ~full_join(.x, .y))
+
+#### merge rxnorm prescriptions
+rxnorm_prescriptions <- reduce(list(opioid_pain_rxnorm,
+                             benzodiazepines_rxnorm,
+                             stimulants_rxnorm),
                         ~full_join(.x, .y))
 
-# save data frames to read in faster later
-saveRDS(mental_illnesses, "data/final/all_mental_illnesses.rds")
-saveRDS(prescriptions, "data/final/all_prescriptions.rds")
 
-cohort <- read_rds("data/final/cohort_eligibility.rds")
-dem_df <- open_dataset("data/tafdebse/dem_df.parquet") |> collect() # kat, should move this to final folder
-death <- read_rds("data/final/death_dts.rds")
-pain <- read_rds("data/final/pain.rds")
-chronic_pain <- read_rds("data/final/chronic_pain_wide.rds")
-chronic_pain_12mos <- read_rds("data/final/chronic_pain_wide_12mos.rds") 
-ouds <- read_rds("data/final/all_ouds.rds")
-censoring <- read_rds("data/final/censoring_full.rds")
+#### save data frames to read in faster later
+# saveRDS(mental_illnesses, "projects/create_cohort/data/final/all_mental_illnesses.rds")
+# saveRDS(prescriptions, "projects/create_cohort/data/final/all_prescriptions.rds")
+# saveRDS(rxnorm_prescriptions, "projects/create_cohort/data/final/all_rxnorm_prescriptions.rds")
 
-mental_illnesses <- read_rds("data/final/all_mental_illnesses.rds")
-prescriptions <- read_rds("data/final/all_prescriptions.rds")
+cohort <- read_rds("projects/create_cohort/data/final/cohort_eligibility.rds")
+dem_df <- open_dataset("projects/create_cohort/data/tafdebse/dem_df.parquet") |> collect() # kat, should move this to final folder
+death <- read_rds("projects/create_cohort/data/final/death_dts.rds")
+pain <- read_rds("projects/create_cohort/data/final/pain.rds")
+chronic_pain <- read_rds("projects/create_cohort/data/final/chronic_pain_wide.rds")
+chronic_pain_12mos <- read_rds("projects/create_cohort/data/final/chronic_pain_wide_12mos.rds") 
+ouds <- read_rds("projects/create_cohort/data/final/all_ouds.rds")
+censoring <- read_rds("projects/create_cohort/data/final/censoring_full.rds")
+
+mental_illnesses <- read_rds("projects/create_cohort/data/final/all_mental_illnesses.rds")
+prescriptions <- read_rds("projects/create_cohort/data/final/all_prescriptions.rds")
+rxnorm_prescriptions <- read_rds("projects/create_cohort/data/final/all_rxnorm_prescriptions.rds")
 
 joined_df <-
     cohort |>
@@ -71,14 +85,15 @@ joined_df <-
     mutate(across(where(is.numeric), ~replace_na(.x, 0)))  |>
     left_join(mental_illnesses) |>
     left_join(prescriptions) |>
+    left_join(rxnorm_prescriptions) |>
     left_join(ouds) |>
     left_join(death) |>
     mutate(death_ever = ifelse(is.na(death_ever), 0, death_ever)) |>
     left_join(censoring)
     
-saveRDS(joined_df, "data/final/joined_df.rds") # pre data cleaning
+saveRDS(joined_df, "projects/create_cohort/data/final/joined_df.rds") # pre data cleaning
 
-joined_df <- read_rds("data/final/joined_df.rds")
+joined_df <- read_rds("projects/create_cohort/data/final/joined_df.rds")
 
 ##### DATA CLEANING
 
@@ -145,9 +160,9 @@ joined_df_tmp <-
          dem_ssi_benefits = case_when(SSI_STATE_SPLMT_CD == "000" ~ "Not Applicable",
                                       SSI_STATE_SPLMT_CD %in% c("001","002") ~ "Mandatory or optional"),
          dem_sex = SEX_CD,
-         dem_age = age_enrollment,
          fips = paste0(BENE_STATE_CD, BENE_CNTY_CD)
-         ) 
+         ) |>
+    rename(dem_age = age_enrollment)
     
 
 
@@ -235,9 +250,11 @@ joined_df_clean <-
         cohort_exclusion_oud_12mos_cal
 )
 
+saveRDS(joined_df_clean, "projects/create_cohort/data/final/joined_df_clean.rds")
+
 joined_df_clean |>
     select(contains("cohort_exclusion")) |>
-    saveRDS("output/cohort_exclusions_df.rds")
+    saveRDS("projects/create_cohort/data/final/cohort_exclusions_df.rds")
 
 # filter out anyone with exclusion criteria of interest (note, no OUD)
 desc_cohort <- joined_df_clean |>
@@ -257,7 +274,7 @@ sens_12mos_analysis_cohort <- joined_df_clean |>
 exposures_tmp <- joined_df_clean |>
     select(BENE_ID, starts_with("disability_pain"))
 
-saveRDS(exposures_tmp, "data/final/exposures_tmp.rds")
+saveRDS(exposures_tmp, "projects/create_cohort/data/final/exposures_tmp.rds")
 
 analysis_cohort |> count(disability_pain_cal)
 analysis_cohort |> count(disability_pain_nomin_cal)
@@ -267,103 +284,96 @@ sens_12mos_analysis_cohort |> count(disability_pain_12mos_cal)
 desc_cohort |> count(disability_pain_cont)
 analysis_cohort |> count(disability_pain_cal)
 
-write_rds(desc_cohort, "data/final/desc_cohort.rds")
-write_rds(analysis_cohort, "data/final/analysis_cohort.rds")
-write_rds(sens_12mos_analysis_cohort, "data/final/sens_12mos_analysis_cohort.rds")
-
-sens_12mos_analysis_cohort <- read_rds("data/final/sens_12mos_analysis_cohort.rds")
-
-analysis_cohort <- read_rds("data/final/analysis_cohort.rds")
-
-check_extra_n <- function(max_month){
-    
-    months_to_check <- paste0("chronic_pain_any_month_", 1:max_month)
-    
-    dis <-
-        analysis_cohort |>
-        select(disability_washout_cal,
-               chronic_pain_any_month_0,
-               one_of(months_to_check)) |>
-        filter(disability_washout_cal == 1,
-               chronic_pain_any_month_0 == 0)
-    
-    n_add_dis <-
-        dis |>
-        select( one_of(months_to_check)) |>
-        filter_at(vars(months_to_check), any_vars(. == 1)) |>
-        nrow()
-    
-    freq_add_dis <- n_add_dis / nrow(dis)
-    
-    neither <-
-        analysis_cohort |>
-        select(disability_washout_cal,
-               chronic_pain_any_month_0,
-               one_of(months_to_check)) |>
-        filter(disability_washout_cal == 0,
-               chronic_pain_any_month_0 == 0)
-    
-    n_add_neither <-
-        neither |>
-        select( one_of(months_to_check)) |>
-        filter_at(vars(months_to_check), any_vars(. == 1)) |>
-        nrow()
-    
-    freq_add_neither <- n_add_neither / nrow(neither)
-    
-    return(data.frame(rolling_window_start = max_month, n_add_dis = n_add_dis, freq_add_dis = freq_add_dis,
-                      n_add_neither = n_add_neither,  freq_add_neither = freq_add_neither))
-}
-
-map_dfr(1:6, check_extra_n)
-
-
-check_extra_n_12mos <- function(max_month){
-    
-    months_to_check <- paste0("chronic_pain_12mos_any_month_", 1:max_month)
-    
-    dis <-
-        analysis_cohort |>
-        select(disability_washout_cal,
-               chronic_pain_12mos_any_month_0,
-               one_of(months_to_check)) |>
-        filter(disability_washout_cal == 1,
-               chronic_pain_12mos_any_month_0 == 0)
-    
-    n_add_dis <-
-        dis |>
-        select( one_of(months_to_check)) |>
-        filter_at(vars(months_to_check), any_vars(. == 1)) |>
-        nrow()
-    
-    freq_add_dis <- n_add_dis / nrow(dis)
-    
-    neither <-
-        analysis_cohort |>
-        select(disability_washout_cal,
-               chronic_pain_12mos_any_month_0,
-               one_of(months_to_check)) |>
-        filter(disability_washout_cal == 0,
-               chronic_pain_12mos_any_month_0 == 0)
-    
-    n_add_neither <-
-        neither |>
-        select( one_of(months_to_check)) |>
-        filter_at(vars(months_to_check), any_vars(. == 1)) |>
-        nrow()
-    
-    freq_add_neither <- n_add_neither / nrow(neither)
-    
-    return(data.frame(rolling_window_start = max_month, n_add_dis = n_add_dis, freq_add_dis = freq_add_dis,
-                      n_add_neither = n_add_neither,  freq_add_neither = freq_add_neither))
-}
-
-
-map_dfr(1:6, check_extra_n_12mos)
-
-
-### Table of how many people would have disbaility and pain out of disbality only if we stretched out our chronic pain defs
-
-### Disability only + neither -- who gains chronic pain as you stretch out the itnervals
-
-### make the same table for 1 year out
+write_rds(desc_cohort, "projects/create_cohort/data/final/desc_cohort.rds")
+write_rds(analysis_cohort, "projects/create_cohort/data/final/analysis_cohort.rds")
+write_rds(sens_12mos_analysis_cohort, "projects/create_cohort/data/final/sens_12mos_analysis_cohort.rds")
+# 
+# sens_12mos_analysis_cohort <- read_rds("projects/create_cohort/data/final/sens_12mos_analysis_cohort.rds")
+# 
+# analysis_cohort <- read_rds("projects/create_cohort/data/final/analysis_cohort.rds")
+# 
+# check_extra_n <- function(max_month){
+#     
+#     months_to_check <- paste0("chronic_pain_any_month_", 1:max_month)
+#     
+#     dis <-
+#         analysis_cohort |>
+#         select(disability_washout_cal,
+#                chronic_pain_any_month_0,
+#                one_of(months_to_check)) |>
+#         filter(disability_washout_cal == 1,
+#                chronic_pain_any_month_0 == 0)
+#     
+#     n_add_dis <-
+#         dis |>
+#         select( one_of(months_to_check)) |>
+#         filter_at(vars(months_to_check), any_vars(. == 1)) |>
+#         nrow()
+#     
+#     freq_add_dis <- n_add_dis / nrow(dis)
+#     
+#     neither <-
+#         analysis_cohort |>
+#         select(disability_washout_cal,
+#                chronic_pain_any_month_0,
+#                one_of(months_to_check)) |>
+#         filter(disability_washout_cal == 0,
+#                chronic_pain_any_month_0 == 0)
+#     
+#     n_add_neither <-
+#         neither |>
+#         select( one_of(months_to_check)) |>
+#         filter_at(vars(months_to_check), any_vars(. == 1)) |>
+#         nrow()
+#     
+#     freq_add_neither <- n_add_neither / nrow(neither)
+#     
+#     return(data.frame(rolling_window_start = max_month, n_add_dis = n_add_dis, freq_add_dis = freq_add_dis,
+#                       n_add_neither = n_add_neither,  freq_add_neither = freq_add_neither))
+# }
+# 
+# map_dfr(1:6, check_extra_n)
+# 
+# 
+# check_extra_n_12mos <- function(max_month){
+#     
+#     months_to_check <- paste0("chronic_pain_12mos_any_month_", 1:max_month)
+#     
+#     dis <-
+#         analysis_cohort |>
+#         select(disability_washout_cal,
+#                chronic_pain_12mos_any_month_0,
+#                one_of(months_to_check)) |>
+#         filter(disability_washout_cal == 1,
+#                chronic_pain_12mos_any_month_0 == 0)
+#     
+#     n_add_dis <-
+#         dis |>
+#         select( one_of(months_to_check)) |>
+#         filter_at(vars(months_to_check), any_vars(. == 1)) |>
+#         nrow()
+#     
+#     freq_add_dis <- n_add_dis / nrow(dis)
+#     
+#     neither <-
+#         analysis_cohort |>
+#         select(disability_washout_cal,
+#                chronic_pain_12mos_any_month_0,
+#                one_of(months_to_check)) |>
+#         filter(disability_washout_cal == 0,
+#                chronic_pain_12mos_any_month_0 == 0)
+#     
+#     n_add_neither <-
+#         neither |>
+#         select( one_of(months_to_check)) |>
+#         filter_at(vars(months_to_check), any_vars(. == 1)) |>
+#         nrow()
+#     
+#     freq_add_neither <- n_add_neither / nrow(neither)
+#     
+#     return(data.frame(rolling_window_start = max_month, n_add_dis = n_add_dis, freq_add_dis = freq_add_dis,
+#                       n_add_neither = n_add_neither,  freq_add_neither = freq_add_neither))
+# }
+# 
+# 
+# map_dfr(1:6, check_extra_n_12mos)

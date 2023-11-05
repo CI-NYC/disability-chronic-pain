@@ -11,7 +11,7 @@
 library(tidyverse)
 library(tictoc)
 
-cohort_exclusions <- read_rds("output/cohort_exclusions_df.rds")
+cohort_exclusions <- read_rds("projects/create_cohort/data/final/cohort_exclusions_df.rds")
 
 tic()
 desc_cohort_exclusions <-
@@ -45,7 +45,7 @@ desc_cohort_exclusions <-
     count()
 toc()
 
-saveRDS(desc_cohort_exclusions, "output/desc_cohort_exclusions.rds")
+saveRDS(desc_cohort_exclusions, "projects/create_cohort/output/desc_cohort_exclusions.rds")
 
 
 tic()
@@ -82,4 +82,4 @@ toc()
 
 
 
-saveRDS(analysis_cohort_exclusions, "output/analysis_cohort_exclusions.rds")
+saveRDS(analysis_cohort_exclusions, "projects/create_cohort/output/analysis_cohort_exclusions.rds")

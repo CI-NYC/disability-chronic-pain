@@ -20,9 +20,9 @@ library(gt)
 ```{r}
 # all_res_tbl <- read_rds(here::here("projects/create_cohort/output/all_res_tbl.rds"))
 
-psi_oud_hillary <- read_rds(here::here("projects/create_cohort/output/psis/psi_oud_hillary_supereff.rds"))
-psi_oud <- read_rds(here::here("projects/create_cohort/output/psis/psi_oud_supereff.rds"))
- psi_oud_poison <- read_rds(here::here("projects/create_cohort/output/psis/psi_oud_poison_supereff.rds"))
+psi_oud_hillary <- read_rds(here::here("projects/create_cohort/output/psis/psi_oud_hillary_supereff_92623_libp.rds"))
+psi_oud <- read_rds(here::here("projects/create_cohort/output/psis/psi_oud_supereff_92623.rds"))
+psi_oud_poison <- read_rds(here::here("projects/create_cohort/output/psis/psi_oud_poison_supereff_92623_libp.rds"))
 
 # psi_any_moud <- read_rds(here::here("projects/create_cohort/output/psis/psi_any_moud.rds"))
 
@@ -167,10 +167,10 @@ p_est <-
     theme_bw() +
     theme(strip.background = element_blank(),
          # strip.text = element_text(face = "bold", size=12),
-          axis.text.y = element_text(size = 9),
+          axis.text.y = element_text(size=8),
           axis.text.x = element_text(size = 8),
-          axis.title.x = element_text(size= 9, margin=margin(t=5)),
-          text=element_text(family="Times")
+          axis.title.x = element_text(size=8, margin=margin(t=5)),
+          text=element_text(family="Arial")
           ) +
     labs(y = "", x = "Incidence (%)") #, title= "OUD Incidence by Disability and Pain")
 
@@ -196,11 +196,11 @@ p_neither <-
     theme_bw() +
     theme(strip.background = element_blank(),
           # strip.text = element_blank(),
-          axis.text.y = element_text(size = 9),
+          axis.text.y = element_text(size=8),
           # strip.text = element_text(face = "bold", size=11),
           axis.text.x = element_text(size = 8),
-          axis.title.x = element_text(size= 9, margin=margin(t=5)),
-          text=element_text(family="Times")
+          axis.title.x = element_text(size=8, margin=margin(t=5)),
+          text=element_text(family="Arial")
           ) +
     geom_vline(xintercept = 0, linetype = "dashed") +
     labs(y = "", x = "Incidence Difference (%)") #, title= "OUD Incidence by Disability and Pain")
@@ -229,10 +229,10 @@ p_cont <-
           #  strip.text = element_blank(),
           # strip.text = element_text(face = "bold", size=11),
           # strip.text = element_text(face = "bold", size=11),
-          axis.text.y = element_text(size = 9),
+          axis.text.y = element_text(size=8),
           axis.text.x = element_text(size = 8),
-          axis.title.x = element_text(size= 9, margin=margin(t=5)),
-          text=element_text(family="Times")
+          axis.title.x = element_text(size=8, margin=margin(t=5)),
+          text=element_text(family="Arial")
           ) +
     geom_vline(xintercept = 0, linetype = "dashed") +
     labs(y = "", x = "Incidence Difference (%)") #, title= "OUD Incidence by Disability and Pain")
@@ -257,7 +257,7 @@ p_est + p_neither + p_cont +
 # nrow(ps)
 # ps
 
-ggsave(here::here("projects/create_cohort/figures/fig3_supereff.pdf"), height=7.5, width=7.5)
+ggsave(here::here("projects/create_cohort/figures/fig3_supereff.jpg"), height=7.5, width=7.5)
 
 ```
 
@@ -273,7 +273,7 @@ contrasts_rr <- function(outcome_name, shift_name, ref_name){
         outcome = outcome_name,
         shift = shift_name,
         ref = ref_name,
-        theta = shift_df$fest / ref_df$est,
+        theta = shift_df$est / ref_df$est,
         se = sqrt(var(log_eif)/length(log_eif)),
         low = exp(log(theta) - qnorm(0.975) * se),
         high =  exp(log(theta) + qnorm(0.975) * se),

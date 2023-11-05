@@ -12,7 +12,6 @@
 
 # Set up ------------------------------------------------------------------
 
-
 # load libraries
 library(arrow)
 library(tidyverse)
@@ -25,6 +24,8 @@ library(doParallel)
 registerDoParallel()
 plan(multicore)
 getDoParWorkers()
+
+drv <- "../data/clean/create_cohort/"
 
 td <- "/home/data/12201/" 
 dts_files <- paste0(list.files(td, pattern = "*TAFDEDTS*", recursive = TRUE)) 
@@ -64,10 +65,8 @@ dts_cal_cohort <-
     ungroup()
 toc()
 
-saveRDS(dts_cal_cohort, "data/tafdedts/dts_cal_cohort.rds")
-
+saveRDS(dts_cal_cohort, paste0(drv, "tafdedts/dts_cal_cohort.rds"))
     
-
 ###########################################################################
 ############ COHORT 2 #####################################################
 ###########################################################################
@@ -94,9 +93,9 @@ nest_dts <-
     mutate(worker_id = rep(seq(1:n_workers), length.out=n())) # create an ID for which worker to send that mini DF to
 toc()
 
-saveRDS(nest_dts, "data/tafdedts/nest_dts.rds")
+saveRDS(nest_dts, paste0(drv, "tafdedts/nest_dts.rds"))
 
-nest_dts <- read_rds("data/tafdedts/nest_dts.rds")
+nest_dts <- read_rds(paste0(drv, "tafdedts/nest_dts.rds"))
 
 # create a new index to save 1000 tmp files because worker_id was too slow (54)
 nest_dts_index <- 
@@ -107,7 +106,7 @@ nest_dts_index <-
 for (i in 1:1000){
     nest_dts_index |>
         filter(index == i) |>
-        saveRDS(paste0("data/tafdedts/tmp_splits/", i, ".rds"))
+        saveRDS(paste0(paste0(drv, "tafdedts/tmp_splits/", i, ".rds")))
 }
 
 fx <- function(data) {
@@ -142,7 +141,7 @@ fx <- function(data) {
 }
 
 # detect temporary splits (1:1000) not done yet
-cleaned <- list.files("data/tafdedts/tmp_splits/", pattern = ".parquet")
+cleaned <- list.files(paste0(drv, "tafdedts/tmp_splits/", pattern = ".parquet"))
 num <- parse_number(cleaned)
 still <- data.frame(all = 1:1000) |>
     mutate(isin = all %in% num) |>
@@ -156,18 +155,18 @@ foreach(i = seq(still)) %dopar%
         print(idx)
         print(Sys.time())
         tic()
-        tmp <- read_rds( paste0("data/tafdedts/tmp_splits/", idx, ".rds"))|>
+        tmp <- read_rds( paste0(paste0(drv, "tafdedts/tmp_splits/", idx, ".rds"))) |>
             select(BENE_ID, data) |>
             mutate(stuff = future_map(data, fx)) |>
             select(BENE_ID, stuff) |>
             unnest()
-        write_parquet(tmp, sink = paste0("data/tafdedts/tmp_splits/", idx, "_clean.parquet"))
+        write_parquet(tmp, sink = paste0(paste0(drv, "tafdedts/tmp_splits/", idx, "_clean.parquet")))
         toc()
     }
 toc()  
 
 # gather all the split files
-td <- "data/tafdedts/tmp_splits/" 
+td <- paste0(drv, "tafdedts/tmp_splits/" )
 files <- paste0(list.files(td, pattern = "*parquet*", recursive = TRUE)) 
 dts_splits <- open_dataset(paste0(td, files), format="parquet") # arrow dataset
 
@@ -181,7 +180,7 @@ dts_cont_cohort <-
            study_cont_end_dt = study_end_dt) 
 toc()
 
-saveRDS(dts_cont_cohort, "data/tafdedts/dts_cont_cohort.rds") # save this large file of the continuous enrollment cohort
+saveRDS(dts_cont_cohort, paste0(drv, "tafdedts/dts_cont_cohort.rds")) # save this large file of the continuous enrollment cohort
 
 
 ###########################################################################
@@ -189,8 +188,8 @@ saveRDS(dts_cont_cohort, "data/tafdedts/dts_cont_cohort.rds") # save this large 
 ###########################################################################
 
 # read back in the cohorts 
-dts_cont_cohort <- read_rds("data/tafdedts/dts_cont_cohort.rds")
-dts_cal_cohort <- read_rds("data/tafdedts/dts_cal_cohort.rds")
+dts_cont_cohort <- read_rds(paste0(drv, "tafdedts/dts_cont_cohort.rds"))
+dts_cal_cohort <- read_rds(paste0(drv, "tafdedts/dts_cal_cohort.rds"))
 
 dts_cal_cohort |> filter(study_end_dt >= as.Date("2020-01-01")) |> nrow()
 
@@ -216,4 +215,4 @@ dts_cohorts <-
     full_join(dts_cont_cohort) # merge with continuous enrollment cohort
 
 # save final cohort DF
-write_parquet(dts_cohorts, "data/tafdedts/dts_cohorts.parquet")
+write_parquet(dts_cohorts, paste0(drv, "tafdedts/dts_cohorts.parquet"))

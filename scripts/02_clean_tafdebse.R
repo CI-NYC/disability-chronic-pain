@@ -29,7 +29,9 @@ td <- "/home/data/12201/" # directory of interest
 dbs_files <- paste0(list.files(td, pattern = "*TAFDEBSE*", recursive = TRUE)) # files of interest
 dbs <- open_dataset(paste0(td, dbs_files), format="parquet", partition = "year") # arrow dataset
 
-# dedts_unique <- read_rds("data/tafdedts/dedts_unique.rds") # unique bene ids and washout start dates
+drv <- "../data/clean/create_cohort/"
+
+dts_cohorts <- open_dataset(paste0(drv, "tafdedts/dts_cohorts.parquet")) |> collect()
 
 # FILTER OUT MARYLAND --------------------------------------------------------
 
@@ -68,7 +70,7 @@ cohort_exclusion_age <-
     mutate(cohort_exclusion_age = case_when(age_enrollment < 19 ~ 1,
                                             age_enrollment >= 65 ~ 1, 
                                             TRUE ~ 0)) |>
-    select(BENE_ID, age_enrollment, cohort_exclusion_age) # remove Medicaid's age variable so as not to confuse
+    select(BENE_ID, cohort_exclusion_age) # remove Medicaid's age variable so as not to confuse
 
 # exclude if missing sex (indicative that not good data on these individuals)
 cohort_exclusion_sex <-
@@ -83,9 +85,9 @@ cohort_exclusion_sex <-
     select(BENE_ID, cohort_exclusion_sex)
 
 
-saveRDS(cohort_exclusion_age, "data/tafdebse/cohort_exclusion_age.rds")
-saveRDS(cohort_exclusion_maryland, "data/tafdebse/cohort_exclusion_maryland.rds")
-saveRDS(cohort_exclusion_sex, "data/tafdebse/cohort_exclusion_sex.rds")
+saveRDS(cohort_exclusion_age, paste0(drv, "tafdebse/cohort_exclusion_age.rds"))
+saveRDS(cohort_exclusion_maryland, paste0(drv, "tafdebse/cohort_exclusion_maryland.rds"))
+saveRDS(cohort_exclusion_sex, paste0(drv,"tafdebse/cohort_exclusion_sex.rds"))
 
 
 # CREATE LONG FORMAT WASHOUT PERIOD KEY ----------------------------------------
@@ -106,11 +108,7 @@ elig_nested <-
     nest()
 toc()
 
-saveRDS(elig_nested, "data/tafdebse/elig_nested.rds")
-
-elig_nested <- read_rds("data/tafdebse/elig_nested.rds")
-dts_cohorts <- open_dataset("data/tafdedts/dts_cohorts.parquet") |>
-    collect()
+saveRDS(elig_nested, paste0(drv, "tafdebse/elig_nested.rds"))
 
 elig_nested_index <-
     elig_nested |>
@@ -118,7 +116,7 @@ elig_nested_index <-
     mutate(index = rep(1:100, length.out=n()))
 
 # Save all the latest eligibility codes from the washout period
-td <- "data/tafdebse/tmp_splits_elig/" 
+td <- paste0(drv, "tafdebse/tmp_splits_elig/" )
 files <- parse_number(paste0(list.files(td, pattern = "*parquet", recursive = TRUE)))
 seq <- 1:100
 # still <- seq  
@@ -178,17 +176,15 @@ last_elig_washout <- full_join(last_elig_cal, last_elig_12mos_cal) |>
 
 print(paste(idx,Sys.time()))
 
-write_parquet(last_elig_washout, paste0("data/tafdebse/tmp_splits_elig/", idx, ".parquet"))
+write_parquet(last_elig_washout, paste0(drv, "tafdebse/tmp_splits_elig/", idx, ".parquet"))
 
     }
 
 # combine
-td <- "data/tafdebse/tmp_splits_elig/" 
+td <- paste0(drv, "tafdebse/tmp_splits_elig/" )
 files <- paste0(list.files(td, pattern = "*parquet", recursive = TRUE))
 last_elig_washout <- open_dataset(paste0(td, files), format="parquet") |> collect() # arrow dataset
-saveRDS(last_elig_washout, "data/tafdebse/last_elig_washout.rds")
-
-last_elig_washout <- read_rds( "data/tafdebse/last_elig_washout.rds")
+saveRDS(last_elig_washout, paste0(drv, "tafdebse/last_elig_washout.rds"))
 
 # Add cohort exclusions based on eligibility
 ### DUAL ELIGIBLE NEEDS TO BE ALL 2 years
@@ -372,7 +368,7 @@ elig_clean |>
     filter(is.na(disability_washout_cont)) |>
     count(washout_cont_elig_code)
 
-write_rds(elig_clean, "data/tafdebse/cohort_exclusion_elig_cds.rds")
+write_rds(elig_clean, paste0(drv, "tafdebse/cohort_exclusion_elig_cds.rds"))
 
 # CREATE LONG FORMAT RELEVANT ELIGIBILITY CODES --------------------------------
 
@@ -426,9 +422,9 @@ cohort_exclusion_cont_dual <-
     distinct()
 toc()
 
-saveRDS(cohort_exclusion_cal_dual, "data/tafdebse/cohort_exclusion_cal_dual.rds")
-saveRDS(cohort_exclusion_12mos_cal_dual, "data/tafdebse/cohort_exclusion_12mos_cal_dual.rds")
-saveRDS(cohort_exclusion_cont_dual, "data/tafdebse/cohort_exclusion_cont_dual.rds")
+saveRDS(cohort_exclusion_cal_dual, paste0(drv, "tafdebse/cohort_exclusion_cal_dual.rds"))
+saveRDS(cohort_exclusion_12mos_cal_dual, paste0(drv, "tafdebse/cohort_exclusion_12mos_cal_dual.rds"))
+saveRDS(cohort_exclusion_cont_dual, paste0(drv, "tafdebse/cohort_exclusion_cont_dual.rds"))
 
 # FILTER OUT SEVERE DEAF/BLIND --------------------------------------------------------
 
@@ -450,11 +446,11 @@ deafblind_washout_yr <-
   filter(db_year == washout_year) |> # only keep deaf/blind data relevant to the washout *year* (limitation, but best we can do i think)
   select(BENE_ID, cohort_exclusion_blind = DSBLTY_BLND_IND, cohort_exclusion_deaf = DSBLTY_DEAF_IND)
 
-saveRDS(deafblind_washout_yr, "data/tafdebse/cohort_exclusion_deaf_blind.rds") # save to merge - next step is to remove intellectual disabilities
+saveRDS(deafblind_washout_yr, paste0(drv, "tafdebse/cohort_exclusion_deaf_blind.rds")) # save to merge - next step is to remove intellectual disabilities
 
 ### Extract additional variables
 
-dts_cohorts <- open_dataset("data/tafdedts/dts_cohorts.parquet") |>
+dts_cohorts <- open_dataset(paste0(drv, "tafdedts/dts_cohorts.parquet")) |>
     collect() 
 
 #       - age
@@ -546,11 +542,11 @@ toc() # 292 sec elapsed
 dem_df_clean <- 
     dem_df |>
     mutate(cohort_exclusion_no_location = case_when(is.na(BENE_STATE_CD) ~ 1,
-                                                    is.na(BENE_STATE_CD) ~ 1,
+                                                    is.na(STATE_CD) ~ 1,
                                                     TRUE ~ 0))
 
 # note that when i read this in, will need to replace missing people with zeros
-write_parquet(dem_df_clean, "data/tafdebse/dem_df.parquet") 
+write_parquet(dem_df_clean, paste0(drv, "tafdebse/dem_df.parquet"))
 
 # checked before this, no instances in which death_dt is NA but death_ind == 1
 death <- dbs |>
@@ -567,5 +563,5 @@ death_clean <- death |>
     mutate(death_ever = case_when(is.na(death_dt) ~ 0,
                                   !is.na(death_dt) ~ 1))
 
-saveRDS(death_clean, "data/final/death_dts.rds")
+saveRDS(death_clean, paste0(drv, "final/death_dts.rds"))
 

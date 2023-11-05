@@ -15,8 +15,8 @@ library(gtsummary)
 library(gt)
 library(tictoc)
 
-analysis_cohort <-  read_rds("data/final/analysis_cohort.rds")
-dat_lmtp <- read_rds("data/final/dat_lmtp.rds")
+analysis_cohort <-  read_rds("projects/create_cohort/data/final/analysis_cohort.rds")
+dat_lmtp <- read_rds("projects/create_cohort/data/final/dat_lmtp.rds")
 
 actual_missing_tbl <-
     dat_lmtp |>
@@ -29,7 +29,7 @@ latex_tbl <-
     as_latex()
 
 # export to latex code
-write_rds(latex_tbl, "output/missingness_tbl2_gt.rds")
+write_rds(latex_tbl, "projects/create_cohort/output/missingness_tbl2_gt.rds")
 
 
 tbl_tmp <-
@@ -60,6 +60,10 @@ latex_tbl <-
     as_latex()
 
 # export to latex code
-write_rds(latex_tbl, "output/missingness_tbl_gt.rds")
+write_rds(latex_tbl, "projects/create_cohort/output/missingness_tbl_gt.rds")
 
+
+library(tidyverse)
+tmp <- read_rds("projects/create_cohort/output/tbls/gt/update/missingness_tbl2_gt.rds")
+tmp
 

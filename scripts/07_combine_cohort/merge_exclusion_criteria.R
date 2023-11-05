@@ -18,16 +18,14 @@ library(lubridate)
 library(data.table)
 library(janitor)
 
-dts_cohorts <- open_dataset("data/tafdedts/dts_cohorts.parquet") |>
+dts_cohorts <- open_dataset("projects/create_cohort/data/tafdedts/dts_cohorts.parquet") |>
     collect() 
 
-td <- "data/"
+td <- "projects/create_cohort/data/"
 files <- list.files(td, pattern = "cohort_exclusion*", recursive = T)
 files[[1]] <- "tafdebse/cohort_exclusion_age.rds" 
 files[[2]] <- "tafdebse/cohort_exclusion_12mos_cal_dual.rds"
 cohort_exclusion_list <- map(files, ~read_rds(paste0(td, .x))) # read in all cohort exclusions
-
-cohort_exclusion_list[[1]]
 
 # cohort_exclusion_list |>
 #     map(function(x) {
@@ -184,5 +182,5 @@ names(cohort)
 tmp <- cohort |> select(contains("cohort_exclusion"))
 colSums(is.na(cohort))
 
-write_rds(cohort, "data/final/cohort_eligibility.rds")
+write_rds(cohort, "projects/create_cohort/data/final/cohort_eligibility.rds")
 

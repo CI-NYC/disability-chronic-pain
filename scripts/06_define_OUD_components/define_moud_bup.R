@@ -16,11 +16,15 @@ library(data.table)
 library(tictoc)
 library(here)
 
-proj_dir <- "projects/define_moud"
+proj_dir <- "projects/create_cohort"
 
-best_list <- read_rds(here(proj_dir, "input/MOUD_codes/best_bup_moud_ndc_list.rds")) # this contains all the codes in best_moud_ndc_list, along with form and whether or not they need to be checked for strength/day
+# update BUP NDC list
+# scp -r -i .ssh/kh3233-disabilityandpain-ubuntu COVID\ Research\ Dropbox/Kat\ Hoffman/GitHub/disability/projects/define_moud/input/best_list.rds kh3233@172.25.96.48:/home/kh3233/projects/define_moud/input/ 
+# scp -r -i .ssh/kh3233-disabilityandpain-ubuntu COVID\ Research\ Dropbox/Kat\ Hoffman/GitHub/disability/projects/define_moud/input/cms_list.rds kh3233@172.25.96.48:/home/kh3233/projects/define_moud/input
 
-dts_cohorts <- open_dataset("data/tafdedts/dts_cohorts.parquet") |>
+best_list <- read_rds(here("projects/define_moud/input/best_list.rds"))
+
+dts_cohorts <- open_dataset("projects/create_cohort/data/tafdedts/dts_cohorts.parquet") |>
     collect() |> 
     mutate(index = rep(1:32, length.out=n()))
 
@@ -68,7 +72,6 @@ best_rxl_clean <-
     select(BENE_ID, NDC, moud_med, form, moud_start_dt = RX_FILL_DT, moud_end_dt) 
 
 write_rds(best_rxl_clean, here(proj_dir, "data/oud_info/bup/best_rxl_clean.rds"))
-write_rds(cms_rxl_clean, here(proj_dir, "data/oud_info/bup/cms_rxl_clean.rds"))
 
 
 # Extract all of the scripts (NDC codes) in Other Services
@@ -259,9 +262,10 @@ best_bup_intervals <-
 
 all_bup_intervals <- 
     dts_cohorts |>
+    select(BENE_ID) |>
     left_join(best_bup_intervals) |>
     mutate(across(contains("oud_moud"), ~ifelse(is.na(.x), 0, .x))) # replace missing data with zero (no bup in that interval)
 
-write_rds(all_bup_intervals, "data/oud_info/bup/all_bup_intervals.rds")
+write_rds(all_bup_intervals, "projects/create_cohort/data/oud_info/bup/all_bup_intervals.rds")
 
 

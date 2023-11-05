@@ -20,10 +20,10 @@ library(gt)
 ```{r}
 # all_res_tbl <- read_rds(here::here("projects/create_cohort/output/all_res_tbl.rds"))
 
-psi_cp <- read_rds(here::here("projects/create_cohort/output/psis/psi_cp.rds"))
-psi_anxiety <- read_rds(here::here("projects/create_cohort/output/psis/psi_anxiety.rds"))
-psi_depression <- read_rds(here::here("projects/create_cohort/output/psis/psi_depression.rds"))
-psi_opioids <- read_rds(here::here("projects/create_cohort/output/psis/psi_opioids.rds"))
+psi_cp <- read_rds(here::here("projects/create_cohort/output/psis/psi_cp_92623.rds"))
+psi_anxiety <- read_rds(here::here("projects/create_cohort/output/psis/psi_anxiety_92623.rds"))
+psi_depression <- read_rds(here::here("projects/create_cohort/output/psis/psi_depression_92623.rds"))
+psi_opioids <- read_rds(here::here("projects/create_cohort/output/psis/psi_opioids_92623.rds"))
 
 # psi_any_moud <- read_rds(here::here("projects/create_cohort/output/psis/psi_any_moud.rds"))
 

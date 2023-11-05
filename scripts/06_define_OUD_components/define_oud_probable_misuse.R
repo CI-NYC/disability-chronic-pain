@@ -26,11 +26,11 @@ getDoParWorkers()
 
 # Load necessary files ---------------------------------------------------------
 
-dts_cohorts <- open_dataset("data/tafdedts/dts_cohorts.parquet") |>
+dts_cohorts <- open_dataset("projects/create_cohort/data/tafdedts/dts_cohorts.parquet") |>
     collect() |> 
     mutate(index = rep(1:32, length.out=n()))
 
-opioids <- read_csv("input/NDC_codes/opioid_pain_rxs_clean.csv") |>
+opioids <- read_csv("projects/create_cohort/input/NDC_codes/opioid_pain_rxs_clean.csv") |>
     rename(NDC = ndc)
 
 #ndc_list_clean <- read_rds( "input/NDC_codes/ndc_list_clean.rds")
@@ -152,33 +152,11 @@ foreach (time = still) %dopar% {
 }
 
 # reduce list output to one long data frame (only contains beneficiaries receiving any opioids)
-all_misuse_splits <- open_dataset("data/oud_info/tmp_splits_oud_misuse/")
+all_misuse_splits <- open_dataset("projects/create_cohort/data/oud_info/tmp_splits_oud_misuse/")
 
 all_misuse_splits_c <-
     all_misuse_splits |>
     collect()
-
-
-# compare to months(6)
-all_misuse_splits_months <- open_dataset("data/oud_info/tmp_splits_oud_misuse/")
-
-all_misuse_splits_c_month <-
-    all_misuse_splits_months |>
-    collect()
-
-nrow(all_misuse_splits_c)
-nrow(all_misuse_splits_c_month)
-
-all_misuse_splits_c_month |> filter(month == 0) |> nrow()
-all_misuse_splits_c |> filter(month == 0) |> nrow()
-
-all_misuse_splits_c |>
-    filter(month == 0) |>
-    filter(score_misuse >= 5)
-
-all_misuse_splits_c_month |>
-    filter(month == 0) |>
-    filter(score_misuse >= 5)
 
 # make a key that is number of months on study (only need to do this for continuous cohort)
 study_months_key <-
@@ -239,6 +217,6 @@ oud_misuse_clean <-
                      oud_misuse_cal_any = 0)) # Don't replace oud_misuse_* variables with NA because we don't want them to be displayed in the table
 
 # save entire OUD misuse data frame in final folder
-saveRDS(oud_misuse_clean, "data/final/oud_misuse.rds")
+saveRDS(oud_misuse_clean, "projects/create_cohort/data/final/oud_misuse.rds")
 
 

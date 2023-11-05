@@ -13,7 +13,7 @@ library(tidyverse)
 fp <- "projects/create_cohort/output/tbls/gt/"
 
 tmp <- read_rds(here::here(fp, "dem_tbl_gt.rds"))
-tmp %>%
+tmp  %>% 
     as.character() %>%
     cat()
 
